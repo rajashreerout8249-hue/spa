@@ -1,0 +1,28 @@
+# SPAAHOLIC WELLNESS - Hostinger / Apache clean URL rules
+Options -MultiViews
+RewriteEngine On
+
+# Force HTTPS and the preferred www domain
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^www\.spaaholic\.in$ [NC]
+RewriteRule ^ https://www.spaaholic.in%{REQUEST_URI} [R=301,L]
+
+# Remove query-string variants from this static website.
+# The supplied Search Console export contains spam-like query URLs (for example ?s=...)
+# and the site does not use query parameters for its five public HTML pages.
+# QSD discards the query string on the redirect (Apache 2.4+).
+RewriteCond %{QUERY_STRING} .+
+RewriteRule ^ %{REQUEST_URI}? [R=301,L,QSD]
+
+# Redirect legacy .html URLs to clean URLs (keep the homepage as /)
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html(?:[\s?]) [NC]
+RewriteRule ^(.+?)\.html$ /$1 [R=301,L,NE]
+
+# Serve existing HTML pages at clean URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^(.+?)/?$ $1.html [END]
+
+# Default document
+DirectoryIndex index.html
